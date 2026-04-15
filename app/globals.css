@@ -1,0 +1,470 @@
+@import "tailwindcss";
+
+/* ========================================
+   Apple Design System - CSS Variables
+   ======================================== */
+
+:root {
+  /* Primary Colors */
+  --color-black: #000000;
+  --color-white: #ffffff;
+  --color-light-gray: #f5f5f7;
+  --color-near-black: #1d1d1f;
+
+  /* Interactive Colors */
+  --color-apple-blue: #0071e3;
+  --color-link-blue: #0066cc;
+  --color-link-blue-bright: #2997ff;
+
+  /* Text Colors */
+  --color-text-dark: rgba(0, 0, 0, 0.8);
+  --color-text-tertiary: rgba(0, 0, 0, 0.48);
+
+  /* Dark Surface Colors */
+  --color-dark-surface-1: #272729;
+  --color-dark-surface-2: #262628;
+  --color-dark-surface-3: #28282a;
+  --color-dark-surface-4: #2a2a2d;
+  --color-dark-surface-5: #242426;
+
+  /* Button Colors */
+  --color-button-active: #ededf2;
+  --color-button-default-light: #fafafc;
+
+  /* Overlay */
+  --color-overlay: rgba(210, 210, 215, 0.64);
+  --color-white-32: rgba(255, 255, 255, 0.32);
+
+  /* Shadows */
+  --shadow-card: rgba(0, 0, 0, 0.22) 3px 5px 30px 0px;
+
+  /* Border Radius */
+  --radius-micro: 5px;
+  --radius-standard: 8px;
+  --radius-comfortable: 11px;
+  --radius-large: 12px;
+  --radius-pill: 980px;
+
+  /* Font Family */
+  --font-display: "SF Pro Display", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-text: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* ========================================
+   Tailwind Theme Override
+   ======================================== */
+
+@theme inline {
+  --color-background: var(--color-white);
+  --color-foreground: var(--color-near-black);
+  --color-primary: var(--color-apple-blue);
+  --color-link: var(--color-link-blue);
+  --color-secondary-bg: var(--color-light-gray);
+}
+
+/* ========================================
+   Base Styles
+   ======================================== */
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-text);
+  font-size: 17px;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+  color: var(--color-near-black);
+  background: var(--color-white);
+}
+
+a {
+  color: var(--color-link-blue);
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* ========================================
+   Typography - Apple Scale
+   ======================================== */
+
+/* Display Hero - 56px */
+h1 {
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: 600;
+  line-height: 1.07;
+  letter-spacing: -0.28px;
+}
+
+/* Section Heading - 40px */
+h2 {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.10;
+  letter-spacing: 0;
+}
+
+/* Tile Heading - 28px */
+h3 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: 0.196px;
+}
+
+/* Card Title - 21px Bold */
+h4 {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.19;
+  letter-spacing: 0.231px;
+}
+
+/* Sub-heading - 21px Regular */
+h5 {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 400;
+  line-height: 1.19;
+  letter-spacing: 0.231px;
+}
+
+/* Large Nav - 34px */
+h6 {
+  font-family: var(--font-text);
+  font-size: 34px;
+  font-weight: 600;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+}
+
+/* ========================================
+   Buttons - Apple Style
+   ======================================== */
+
+/* Primary Blue CTA */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 15px;
+  background: var(--color-apple-blue);
+  color: var(--color-white);
+  font-family: var(--font-text);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 2.41;
+  border-radius: var(--radius-standard);
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: #0077ed;
+  text-decoration: none;
+}
+
+.btn-primary:active {
+  background: var(--color-button-active);
+}
+
+/* Primary Dark */
+.btn-dark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 15px;
+  background: var(--color-near-black);
+  color: var(--color-white);
+  font-family: var(--font-text);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 2.41;
+  border-radius: var(--radius-standard);
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.btn-dark:hover {
+  opacity: 0.85;
+  text-decoration: none;
+}
+
+/* Pill Link - Learn More / Shop */
+.btn-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 15px;
+  background: transparent;
+  color: var(--color-link-blue);
+  font-family: var(--font-text);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-link-blue);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-pill:hover {
+  text-decoration: underline;
+}
+
+.btn-pill-white {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 15px;
+  background: transparent;
+  color: var(--color-white);
+  font-family: var(--font-text);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-white);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-pill-white:hover {
+  text-decoration: underline;
+}
+
+/* ========================================
+   Cards & Containers
+   ======================================== */
+
+.card {
+  background: var(--color-light-gray);
+  border: none;
+  border-radius: var(--radius-standard);
+  overflow: hidden;
+}
+
+.card:hover {
+  /* Apple cards have no hover state - static */
+}
+
+/* Dark Card */
+.card-dark {
+  background: var(--color-dark-surface-1);
+  border: none;
+  border-radius: var(--radius-standard);
+}
+
+/* ========================================
+   Navigation - Apple Glass Effect
+   ======================================== */
+
+.nav-glass {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+/* ========================================
+   Section Layouts
+   ======================================== */
+
+/* Light Gray Section */
+.section-light {
+  background: var(--color-light-gray);
+  color: var(--color-near-black);
+}
+
+/* Dark Section */
+.section-dark {
+  background: var(--color-black);
+  color: var(--color-white);
+}
+
+/* White Section */
+.section-white {
+  background: var(--color-white);
+  color: var(--color-near-black);
+}
+
+/* ========================================
+   Text Helpers
+   ======================================== */
+
+.text-body {
+  font-family: var(--font-text);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+  color: var(--color-text-dark);
+}
+
+.text-caption {
+  font-family: var(--font-text);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.29;
+  letter-spacing: -0.224px;
+  color: var(--color-text-tertiary);
+}
+
+.text-link {
+  font-family: var(--font-text);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.43;
+  letter-spacing: -0.224px;
+  color: var(--color-link-blue);
+}
+
+.text-link:hover {
+  text-decoration: underline;
+}
+
+/* ========================================
+   Prose Styles - Blog Content
+   ======================================== */
+
+.prose {
+  font-family: var(--font-text);
+  font-size: 17px;
+  line-height: 1.47;
+  letter-spacing: -0.374px;
+  color: var(--color-text-dark);
+  max-width: 680px;
+}
+
+.prose h1 {
+  font-family: var(--font-display);
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.10;
+  letter-spacing: 0;
+  color: var(--color-near-black);
+  margin-top: 48px;
+  margin-bottom: 16px;
+}
+
+.prose h2 {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: 0.196px;
+  color: var(--color-near-black);
+  margin-top: 36px;
+  margin-bottom: 12px;
+}
+
+.prose h3 {
+  font-family: var(--font-display);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.19;
+  letter-spacing: 0.231px;
+  color: var(--color-near-black);
+  margin-top: 28px;
+  margin-bottom: 8px;
+}
+
+.prose p {
+  margin-bottom: 24px;
+}
+
+.prose ul, .prose ol {
+  margin-bottom: 24px;
+  padding-left: 24px;
+}
+
+.prose li {
+  margin-bottom: 8px;
+}
+
+.prose a {
+  color: var(--color-link-blue);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.prose blockquote {
+  border-left: 3px solid var(--color-apple-blue);
+  padding-left: 20px;
+  margin-left: 0;
+  font-style: italic;
+  color: var(--color-text-tertiary);
+}
+
+.prose code {
+  background: var(--color-light-gray);
+  padding: 2px 6px;
+  border-radius: var(--radius-micro);
+  font-family: "SF Mono", SFMono-Regular, Menlo, Monaco, monospace;
+  font-size: 0.9em;
+}
+
+.prose pre {
+  background: var(--color-light-gray);
+  padding: 20px;
+  border-radius: var(--radius-standard);
+  overflow-x: auto;
+  margin-bottom: 24px;
+}
+
+.prose pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.prose img {
+  border-radius: var(--radius-standard);
+  margin: 32px 0;
+}
+
+.prose hr {
+  border: none;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.1);
+  margin: 48px 0;
+}
+
+/* ========================================
+   Responsive Typography
+   ======================================== */
+
+@media (max-width: 1070px) {
+  h1 { font-size: 48px; }
+  h2 { font-size: 34px; }
+  h3 { font-size: 24px; }
+}
+
+@media (max-width: 734px) {
+  h1 { font-size: 36px; line-height: 1.08; letter-spacing: 0; }
+  h2 { font-size: 28px; line-height: 1.11; }
+  h3 { font-size: 21px; line-height: 1.14; }
+  h4 { font-size: 18px; }
+
+  body {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .prose {
+    font-size: 15px;
+  }
+}
