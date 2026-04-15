@@ -17,7 +17,7 @@ export default async function Home() {
             style={{ fontFamily: "var(--font-display)" }}
           >
             Hello, I'm<br />
-            <span style={{ color: "var(--color-apple-blue)" }}>Developer</span>
+            <span style={{ color: "var(--color-apple-blue)" }}>Jeffy</span>
           </h1>
           <p
             className="text-white/80 text-xl md:text-2xl font-light max-w-xl mx-auto mb-12"
@@ -27,8 +27,8 @@ export default async function Home() {
               letterSpacing: 0
             }}
           >
-            I build exceptional digital experiences<br />
-            with focus on design and technology.
+            AI & Full-stack Developer<br />
+            Building tools that matter.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/projects" className="btn-primary">
