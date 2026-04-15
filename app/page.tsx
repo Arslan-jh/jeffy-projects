@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getPosts } from "@/lib/notion";
+import Typewriter from "@/components/Typewriter";
 
 export const dynamic = "force-dynamic";
 
@@ -13,11 +14,13 @@ export default async function Home() {
       <section className="section-dark min-h-screen flex items-center justify-center px-6">
         <div className="max-w-980 mx-auto text-center">
           <h1
-            className="text-white mb-6"
+            className="text-white mb-6 flex items-center justify-center gap-1 flex-wrap"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            Hello, I'm<br />
-            <span style={{ color: "var(--color-apple-blue)" }}>Jeffy</span>
+            <Typewriter text="Hello, I'm " speed={100} delay={300} />
+            <span style={{ color: "#0071e3" }}>
+              <Typewriter text="Jeffy" speed={100} delay={1300} />
+            </span>
           </h1>
           <p
             className="text-white/80 text-xl md:text-2xl font-light max-w-xl mx-auto mb-12"
@@ -27,8 +30,11 @@ export default async function Home() {
               letterSpacing: 0
             }}
           >
-            AI & Full-stack Developer<br />
-            Building tools that matter.
+            <Typewriter
+              text="Record my sights, sounds, thoughts."
+              speed={40}
+              delay={1800}
+            />
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/projects" className="btn-primary">

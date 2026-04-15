@@ -48,6 +48,11 @@
   /* Font Family */
   --font-display: "SF Pro Display", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-text: "SF Pro Text", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  /* Apple Animation Curves */
+  --ease-apple: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-apple-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-apple-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ========================================
@@ -63,12 +68,18 @@
 }
 
 /* ========================================
-   Base Styles
+   Base Styles - GPU Accelerated
    ======================================== */
 
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -78,12 +89,24 @@ body {
   letter-spacing: -0.374px;
   color: var(--color-near-black);
   background: var(--color-white);
+  overflow-x: hidden;
+  content-visibility: auto;
+}
+
+/* Hide scrollbar */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: none;
 }
 
 a {
   color: var(--color-link-blue);
   text-decoration: none;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s var(--ease-apple);
 }
 
 a:hover {
@@ -150,7 +173,7 @@ h6 {
 }
 
 /* ========================================
-   Buttons - Apple Style
+   Buttons - GPU Accelerated
    ======================================== */
 
 /* Primary Blue CTA */
@@ -168,7 +191,9 @@ h6 {
   border-radius: var(--radius-standard);
   border: none;
   cursor: pointer;
-  transition: background 0.3s ease;
+  transition: background 0.2s var(--ease-apple), transform 0.1s var(--ease-apple);
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .btn-primary:hover {
@@ -178,6 +203,7 @@ h6 {
 
 .btn-primary:active {
   background: var(--color-button-active);
+  transform: scale(0.97) translateZ(0);
 }
 
 /* Primary Dark */
@@ -195,7 +221,7 @@ h6 {
   border-radius: var(--radius-standard);
   border: none;
   cursor: pointer;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s var(--ease-apple);
 }
 
 .btn-dark:hover {
@@ -203,7 +229,7 @@ h6 {
   text-decoration: none;
 }
 
-/* Pill Link - Learn More / Shop */
+/* Pill Link */
 .btn-pill {
   display: inline-flex;
   align-items: center;
@@ -219,11 +245,14 @@ h6 {
   border-radius: var(--radius-pill);
   border: 1px solid var(--color-link-blue);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background 0.2s var(--ease-apple), color 0.2s var(--ease-apple);
+  transform: translateZ(0);
 }
 
 .btn-pill:hover {
-  text-decoration: underline;
+  background: var(--color-link-blue);
+  color: white;
+  text-decoration: none;
 }
 
 .btn-pill-white {
@@ -241,15 +270,17 @@ h6 {
   border-radius: var(--radius-pill);
   border: 1px solid var(--color-white);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background 0.2s var(--ease-apple);
+  transform: translateZ(0);
 }
 
 .btn-pill-white:hover {
-  text-decoration: underline;
+  background: rgba(255, 255, 255, 0.1);
+  text-decoration: none;
 }
 
 /* ========================================
-   Cards & Containers
+   Cards & Containers - GPU Accelerated
    ======================================== */
 
 .card {
@@ -257,10 +288,13 @@ h6 {
   border: none;
   border-radius: var(--radius-standard);
   overflow: hidden;
+  transition: transform 0.3s var(--ease-apple-out);
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .card:hover {
-  /* Apple cards have no hover state - static */
+  transform: translateY(-2px) translateZ(0);
 }
 
 /* Dark Card */
@@ -278,25 +312,23 @@ h6 {
   background: rgba(0, 0, 0, 0.8);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
+  will-change: background;
 }
 
 /* ========================================
    Section Layouts
    ======================================== */
 
-/* Light Gray Section */
 .section-light {
   background: var(--color-light-gray);
   color: var(--color-near-black);
 }
 
-/* Dark Section */
 .section-dark {
   background: var(--color-black);
   color: var(--color-white);
 }
 
-/* White Section */
 .section-white {
   background: var(--color-white);
   color: var(--color-near-black);
@@ -331,9 +363,11 @@ h6 {
   line-height: 1.43;
   letter-spacing: -0.224px;
   color: var(--color-link-blue);
+  transition: opacity 0.2s var(--ease-apple);
 }
 
 .text-link:hover {
+  opacity: 0.7;
   text-decoration: underline;
 }
 
@@ -467,4 +501,13 @@ h6 {
   .prose {
     font-size: 15px;
   }
+}
+
+/* ========================================
+   Cursor Blink Animation
+   ======================================== */
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
 }

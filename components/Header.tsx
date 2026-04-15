@@ -15,6 +15,11 @@ const navLinks = [
 export default function Header() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
+  const [isHome, setIsHome] = useState(false);
+
+  useEffect(() => {
+    setIsHome(pathname === "/");
+  }, [pathname]);
 
   useEffect(() => {
     if (isOpen) {
@@ -29,18 +34,16 @@ export default function Header() {
 
   return (
     <>
-      {/* Desktop Navigation - Apple Glass Effect */}
-      <header className="nav-glass fixed top-0 left-0 right-0 z-50 h-12">
+      {/* Desktop Navigation */}
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 h-12 ${
+          isHome ? "nav-glass" : "bg-white/80 backdrop-blur-md"
+        }`}
+      >
         <div className="max-w-980 mx-auto px-6 h-full">
           <div className="flex items-center justify-between h-full">
-            {/* Logo */}
-            <Link
-              href="/"
-              className="text-white font-semibold text-lg flex items-center"
-              style={{ fontFamily: "var(--font-text)", letterSpacing: 0 }}
-            >
-              My Portfolio
-            </Link>
+            {/* Spacer for alignment */}
+            <div className="w-20" />
 
             {/* Desktop Nav Links */}
             <nav className="hidden md:flex items-center gap-6 h-full">
@@ -48,9 +51,9 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`text-white text-sm h-full flex items-center relative ${
+                  className={`text-sm h-full flex items-center relative ${
                     pathname === link.href ? "font-semibold" : "font-normal"
-                  }`}
+                  } ${isHome ? "text-white" : "text-black"}`}
                   style={{
                     fontFamily: "var(--font-text)",
                     opacity: 1,
@@ -59,7 +62,10 @@ export default function Header() {
                 >
                   {link.label}
                   {pathname === link.href && (
-                    <span className="absolute bottom-0 left-0 right-0 h-px bg-white" />
+                    <span
+                      className="absolute bottom-0 left-0 right-0 h-px"
+                      style={{ background: isHome ? "white" : "black" }}
+                    />
                   )}
                 </Link>
               ))}
@@ -67,7 +73,7 @@ export default function Header() {
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden text-white p-2 -mr-2"
+              className={`md:hidden p-2 -mr-2 ${isHome ? "text-white" : "text-black"}`}
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Menu"
             >

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getPost } from "@/lib/notion";
 import { remark } from "remark";
 import html from "remark-html";
+import GiscusComponent from "@/components/Giscus";
 
 export const dynamic = "force-dynamic";
 
@@ -87,6 +88,7 @@ export default async function BlogPostPage({
             className="prose"
             dangerouslySetInnerHTML={{ __html: contentHtml }}
           />
+          <GiscusComponent />
         </div>
       </section>
     </div>
