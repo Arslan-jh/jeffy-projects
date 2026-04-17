@@ -1,4 +1,8 @@
 import { NextResponse } from "next/server";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+const TO_EMAIL = "jiahuipengpku@gmail.com";
 
 export async function POST(request: Request) {
   try {
@@ -22,16 +26,28 @@ export async function POST(request: Request) {
       );
     }
 
-    // Here you would typically:
-    // 1. Send an email notification (e.g., using nodemailer, SendGrid, etc.)
-    // 2. Store the message in a database
-    // 3. Send to a Slack/Discord webhook
-    //
-    // For now, we'll just log it and return success
-    console.log("Contact form submission:", { name, email, message });
+    // Send email via Resend
+    const { data, error } = await resend.emails.send({
+      from: "Contact Form <onboarding@resend.dev>",
+      to: [TO_EMAIL],
+      replyTo: email,
+      subject: `New message from ${name}`,
+      html: `
+        <h2>New Contact Form Message</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Message:</strong></p>
+        <p>${message.replace(/\n/g, "<br>")}</p>
+      `,
+    });
 
-    // Example: Send email notification (uncomment and configure)
-    // await sendEmail({ to: "your-email@example.com", subject: `New contact from ${name}`, text: message });
+    if (error) {
+      console.error("Resend error:", error);
+      return NextResponse.json(
+        { error: "Failed to send message" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(
       { success: true, message: "Message received" },

@@ -9,9 +9,9 @@ export default async function Home() {
   const recentPosts = posts.slice(0, 2);
 
   return (
-    <div className="bg-white">
-      {/* Hero Section - Black Background */}
-      <section className="section-dark min-h-screen flex items-center justify-center px-6">
+    <div className="bg-black">
+      {/* Hero Section */}
+      <section className="min-h-screen flex items-center justify-center px-6">
         <div className="max-w-980 mx-auto text-center">
           <h1
             className="text-white mb-6 flex items-center justify-center gap-1 flex-wrap"
@@ -37,152 +37,113 @@ export default async function Home() {
             />
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/projects" className="btn-primary">
-              View Projects
+            <Link href="/blog" className="btn-primary">
+              Read Blog
             </Link>
-            <Link href="/contact" className="btn-pill-white">
+            <Link href="/about" className="btn-pill-white">
               Get in Touch
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Featured Section - Light Gray Background */}
-      <section className="section-light py-24 px-6">
-        <div className="max-w-980 mx-auto">
+      {/* Blog Preview Section - Black Background */}
+      <section className="py-24 px-6">
+        <div className="max-w-3xl mx-auto">
           <h2
-            className="text-center mb-16"
-            style={{ fontFamily: "var(--font-display)" }}
-          >
-            Featured Work
-          </h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Project Card 1 */}
-            <Link
-              href="/projects/my-project"
-              className="card group block"
-            >
-              <div
-                className="aspect-[4/3] flex items-center justify-center"
-                style={{ background: "var(--color-white)" }}
-              >
-                <span className="text-7xl">🚀</span>
-              </div>
-              <div className="p-6">
-                <h3
-                  className="mb-2 group-hover:opacity-70 transition-opacity"
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
-                  My Project
-                </h3>
-                <p className="text-body text-caption">
-                  A brief description of the project and what it does.
-                </p>
-              </div>
-            </Link>
-
-            {/* Project Card 2 */}
-            <Link
-              href="/projects/another-project"
-              className="card group block"
-            >
-              <div
-                className="aspect-[4/3] flex items-center justify-center"
-                style={{ background: "var(--color-white)" }}
-              >
-                <span className="text-7xl">💻</span>
-              </div>
-              <div className="p-6">
-                <h3
-                  className="mb-2 group-hover:opacity-70 transition-opacity"
-                  style={{ fontFamily: "var(--font-display)" }}
-                >
-                  Another Project
-                </h3>
-                <p className="text-body text-caption">
-                  Another brief description of the project.
-                </p>
-              </div>
-            </Link>
-          </div>
-          <div className="text-center mt-12">
-            <Link href="/projects" className="btn-pill">
-              View all projects
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Blog Preview Section - White Background */}
-      <section className="section-white py-24 px-6">
-        <div className="max-w-980 mx-auto">
-          <h2
-            className="text-center mb-16"
+            className="text-white mb-12"
             style={{ fontFamily: "var(--font-display)" }}
           >
             Latest Articles
           </h2>
-          <div className="space-y-0">
+
+          {/* Blog cards grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {recentPosts.length === 0 ? (
-              <p className="text-body text-center py-12">
-                No posts yet. Connect your Notion database to start writing!
+              <p className="text-white/50 col-span-2 text-center py-12">
+                No posts yet. Start writing in Notion!
               </p>
             ) : (
-              recentPosts.map((post) => (
-                <Link
-                  key={post.slug}
-                  href={`/blog/${post.slug}`}
-                  className="block group py-8 border-b border-black/10"
-                >
-                  <div className="flex flex-col md:flex-row md:items-baseline md:justify-between gap-2 mb-3">
-                    <h3
-                      className="text-near-black group-hover:opacity-70 transition-opacity"
-                      style={{ fontFamily: "var(--font-display)" }}
+              recentPosts.map((post, index) => {
+                const cardColors = [
+                  { bg: "#1a1a1a", text: "#ffffff" },
+                  { bg: "#232323", text: "#ffffff" },
+                  { bg: "#2a2a2a", text: "#ffffff" },
+                ];
+                const color = cardColors[index % cardColors.length];
+
+                return (
+                  <Link
+                    key={post.slug}
+                    href={`/blog/${post.slug}`}
+                    className="block group"
+                    style={{ textDecoration: "none" }}
+                  >
+                    <div
+                      className="rounded-[16px] p-6 transition-all duration-300 group-hover:scale-[1.02]"
+                      style={{
+                        backgroundColor: color.bg,
+                        minHeight: "160px",
+                      }}
                     >
-                      {post.title}
-                    </h3>
-                    <span className="text-caption">
-                      {new Date(post.date).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </span>
-                  </div>
-                  <p className="text-body">
-                    {post.excerpt}
-                  </p>
-                  <span className="text-link mt-3 inline-block">
-                    Read more →
-                  </span>
-                </Link>
-              ))
+                      <h3
+                        className="text-[16px] font-semibold mb-3 group-hover:opacity-80 transition-opacity"
+                        style={{ fontFamily: "var(--font-display)", color: color.text }}
+                      >
+                        {post.title}
+                      </h3>
+                      {post.excerpt && (
+                        <p className="text-[14px] leading-relaxed line-clamp-2 mb-4" style={{ fontFamily: "var(--font-text)", color: "rgba(255,255,255,0.6)" }}>
+                          {post.excerpt}
+                        </p>
+                      )}
+                      <div className="flex items-center justify-between">
+                        {post.tags.length > 0 && (
+                          <span
+                            className="text-[11px] px-2.5 py-0.5 rounded-full bg-white/10 text-white/50"
+                            style={{ fontFamily: "var(--font-text)" }}
+                          >
+                            {post.tags[0]}
+                          </span>
+                        )}
+                        <span className="text-[12px] text-white/40" style={{ fontFamily: "var(--font-text)" }}>
+                          {new Date(post.date).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "short",
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })
             )}
           </div>
+
           <div className="text-center mt-12">
-            <Link href="/blog" className="btn-pill">
+            <Link href="/blog" className="btn-pill-white">
               View all articles
             </Link>
           </div>
         </div>
       </section>
 
-      {/* CTA Section - Black Background */}
-      <section className="section-dark py-24 px-6">
+      {/* CTA Section */}
+      <section className="py-24 px-6">
         <div className="max-w-980 mx-auto text-center">
           <h2
             className="text-white mb-6"
             style={{ fontFamily: "var(--font-display)" }}
           >
-            Let's work together
+            Let&apos;s work together
           </h2>
           <p
             className="text-white/80 text-xl font-light mb-10"
             style={{ fontFamily: "var(--font-text)", letterSpacing: 0 }}
           >
-            Have a project in mind? I'd love to hear about it.
+            Have a project in mind? I&apos;d love to hear about it.
           </p>
-          <Link href="/contact" className="btn-primary">
+          <Link href="/about" className="btn-primary">
             Start a Conversation
           </Link>
         </div>

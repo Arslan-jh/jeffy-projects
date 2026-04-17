@@ -6,6 +6,39 @@ const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
 const NOTION_API_BASE = "https://api.notion.com/v1";
 const NOTION_VERSION = "2022-06-28";
 
+// Simple in-memory cache with TTL
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
+const isDev = process.env.NODE_ENV === "development";
+const CACHE_TTL = isDev ? 60 * 1000 : 60 * 1000; // 1 minute cache in both dev and prod
+
+const cache = new Map<string, CacheEntry<any>>();
+
+function getCached<T>(key: string): T | null {
+  const entry = cache.get(key);
+  if (entry && Date.now() - entry.timestamp < CACHE_TTL) {
+    return entry.data as T;
+  }
+  cache.delete(key);
+  return null;
+}
+
+function setCache<T>(key: string, data: T): void {
+  cache.set(key, { data, timestamp: Date.now() });
+}
+
+// Force refresh cache (useful when Notion content updates)
+export function invalidateCache(key?: string): void {
+  if (key) {
+    cache.delete(key);
+  } else {
+    cache.clear();
+  }
+}
+
 export interface Post {
   id: string;
   slug: string;
@@ -36,24 +69,23 @@ async function notionFetch(endpoint: string, options: RequestInit = {}) {
 }
 
 export async function getPosts(): Promise<Post[]> {
+  const cacheKey = "posts_list";
+  const cached = getCached<Post[]>(cacheKey);
+  if (cached) return cached;
+
   try {
     const response = await notionFetch(`/databases/${NOTION_DATABASE_ID}/query`, {
       method: "POST",
-      body: JSON.stringify({
-        sorts: [
-          {
-            property: "Date",
-            direction: "descending",
-          },
-        ],
-      }),
+      body: JSON.stringify({}),
     });
 
     const pages = response.results || [];
-    const posts = pages.map((page: any) => {
+    const posts = [];
+
+    for (const page of pages) {
       const props = page.properties;
 
-      // Get title from Name or Title property
+      // Get title
       const titleProp = props.Name || props.Title;
       const title =
         titleProp?.title?.[0]?.plain_text ||
@@ -61,9 +93,7 @@ export async function getPosts(): Promise<Post[]> {
         "Untitled";
 
       // Get slug
-      const slugProp = props.Slug || props.slug;
       const slug =
-        slugProp?.rich_text?.[0]?.plain_text ||
         title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") ||
         page.id;
 
@@ -75,14 +105,10 @@ export async function getPosts(): Promise<Post[]> {
       const tagsProp = props.Tags || props.tags;
       const tags = tagsProp?.multi_select?.map((tag: any) => tag.name) || [];
 
-      // Get excerpt
-      const excerptProp = props.Excerpt || props.Description || props.excerpt;
-      const excerpt =
-        excerptProp?.rich_text?.[0]?.plain_text ||
-        excerptProp?.plain_text ||
-        "";
+      // Use title as excerpt (don't fetch blocks for list - that's too slow)
+      const excerpt = title;
 
-      return {
+      posts.push({
         id: page.id,
         slug,
         title,
@@ -90,9 +116,10 @@ export async function getPosts(): Promise<Post[]> {
         tags,
         excerpt,
         content: "",
-      };
-    });
+      });
+    }
 
+    setCache(cacheKey, posts);
     return posts;
   } catch (error) {
     console.error("Error fetching posts from Notion:", error);
@@ -101,97 +128,61 @@ export async function getPosts(): Promise<Post[]> {
 }
 
 export async function getPost(slug: string): Promise<Post | null> {
+  const cacheKey = `post_${slug}`;
+  const cached = getCached<Post | null>(cacheKey);
+  if (cached) return cached;
+
   try {
-    // First, query to find the page with matching slug
-    const response = await notionFetch(`/databases/${NOTION_DATABASE_ID}/query`, {
-      method: "POST",
-      body: JSON.stringify({
-        filter: {
-          property: "Slug",
-          rich_text: {
-            equals: slug,
-          },
-        },
-      }),
-    });
+    // Get all posts and find by slug
+    const posts = await getPosts();
+    const post = posts.find(p => p.slug === slug);
 
-    if (response.results.length === 0) {
-      return null;
-    }
+    if (!post) return null;
 
-    const page = response.results[0];
-    const props = page.properties;
-
-    const titleProp = props.Name || props.Title;
-    const title =
-      titleProp?.title?.[0]?.plain_text ||
-      titleProp?.rich_text?.[0]?.plain_text ||
-      "Untitled";
-
-    const slugProp = props.Slug || props.slug;
-    const postSlug =
-      slugProp?.rich_text?.[0]?.plain_text ||
-      title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") ||
-      page.id;
-
-    const dateProp = props.Date || props.date;
-    const date = dateProp?.date?.start || new Date().toISOString();
-
-    const tagsProp = props.Tags || props.tags;
-    const tags = tagsProp?.multi_select?.map((tag: any) => tag.name) || [];
-
-    const excerptProp = props.Excerpt || props.Description || props.excerpt;
-    const excerpt =
-      excerptProp?.rich_text?.[0]?.plain_text ||
-      excerptProp?.plain_text ||
-      "";
-
-    // Get page content (blocks)
-    const blocksResponse = await notionFetch(`/blocks/${page.id}/children?page_size=100`);
-
-    // Convert blocks to markdown
+    // Re-fetch to get full content
+    const blocksResponse = await notionFetch(`/blocks/${post.id}/children?page_size=100`);
     let content = "";
-    for (const block of blocksResponse.results) {
-      const b = block as any;
-      if (b.type === "paragraph") {
-        const text = b.paragraph.rich_text.map((t: any) => t.plain_text).join("");
+
+    for (const b of blocksResponse.results || []) {
+      const blockData = b as any;
+      if (blockData.type === "paragraph") {
+        const text = blockData.paragraph.rich_text.map((t: any) => t.plain_text).join("");
         content += text + "\n\n";
-      } else if (b.type === "heading_1") {
-        const text = b.heading_1.rich_text.map((t: any) => t.plain_text).join("");
+      } else if (blockData.type === "heading_1") {
+        const text = blockData.heading_1.rich_text.map((t: any) => t.plain_text).join("");
         content += `# ${text}\n\n`;
-      } else if (b.type === "heading_2") {
-        const text = b.heading_2.rich_text.map((t: any) => t.plain_text).join("");
+      } else if (blockData.type === "heading_2") {
+        const text = blockData.heading_2.rich_text.map((t: any) => t.plain_text).join("");
         content += `## ${text}\n\n`;
-      } else if (b.type === "heading_3") {
-        const text = b.heading_3.rich_text.map((t: any) => t.plain_text).join("");
+      } else if (blockData.type === "heading_3") {
+        const text = blockData.heading_3.rich_text.map((t: any) => t.plain_text).join("");
         content += `### ${text}\n\n`;
-      } else if (b.type === "code") {
-        const text = b.code.rich_text.map((t: any) => t.plain_text).join("");
-        const language = b.code.language || "text";
-        content += `\`\`\`${language}\n${text}\n\`\`\`\n\n`;
-      } else if (b.type === "bulleted_list_item") {
-        const text = b.bulleted_list_item.rich_text.map((t: any) => t.plain_text).join("");
+      } else if (blockData.type === "code") {
+        const text = blockData.code.rich_text.map((t: any) => t.plain_text).join("");
+        content += `\`\`\`${blockData.code.language || "text"}\n${text}\n\`\`\`\n\n`;
+      } else if (blockData.type === "bulleted_list_item") {
+        const text = blockData.bulleted_list_item.rich_text.map((t: any) => t.plain_text).join("");
         content += `- ${text}\n`;
-      } else if (b.type === "numbered_list_item") {
-        const text = b.numbered_list_item.rich_text.map((t: any) => t.plain_text).join("");
+      } else if (blockData.type === "numbered_list_item") {
+        const text = blockData.numbered_list_item.rich_text.map((t: any) => t.plain_text).join("");
         content += `1. ${text}\n`;
-      } else if (b.type === "image") {
-        const url = b.image.type === "external" ? b.image.external.url : b.image.file?.url || "";
+      } else if (blockData.type === "image") {
+        const url = blockData.image.type === "external"
+          ? blockData.image.external.url
+          : blockData.image.file?.url || "";
         content += `![image](${url})\n\n`;
-      } else if (b.type === "divider") {
+      } else if (blockData.type === "divider") {
         content += `---\n\n`;
       }
     }
 
-    return {
-      id: page.id,
-      slug: postSlug,
-      title,
-      date,
-      tags,
-      excerpt,
+    const fullPost = {
+      ...post,
       content: content.trim(),
     };
+
+    setCache(cacheKey, fullPost);
+    return fullPost;
   } catch (error) {
     console.error("Error fetching post from Notion:", error);
     return null;
