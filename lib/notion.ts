@@ -105,8 +105,30 @@ export async function getPosts(): Promise<Post[]> {
       const tagsProp = props.Tags || props.tags;
       const tags = tagsProp?.multi_select?.map((tag: any) => tag.name) || [];
 
-      // Use title as excerpt (don't fetch blocks for list - that's too slow)
-      const excerpt = title;
+      // Fetch first block for excerpt (first 100 chars of actual content)
+      let excerpt = "";
+      try {
+        const blocksResponse = await notionFetch(`/blocks/${page.id}/children?page_size=3`);
+        const blocks = blocksResponse.results || [];
+        let text = "";
+        for (const b of blocks) {
+          const blockData = b as any;
+          if (blockData.type === "paragraph") {
+            text += blockData.paragraph.rich_text.map((t: any) => t.plain_text).join("");
+          } else if (blockData.type === "heading_1") {
+            text += blockData.heading_1.rich_text.map((t: any) => t.plain_text).join("");
+          } else if (blockData.type === "heading_2") {
+            text += blockData.heading_2.rich_text.map((t: any) => t.plain_text).join("");
+          } else if (blockData.type === "heading_3") {
+            text += blockData.heading_3.rich_text.map((t: any) => t.plain_text).join("");
+          }
+          if (text.length >= 100) break;
+        }
+        excerpt = text.slice(0, 100);
+        if (text.length > 100) excerpt += "…";
+      } catch {
+        // If blocks fetch fails, leave excerpt empty
+      }
 
       posts.push({
         id: page.id,
